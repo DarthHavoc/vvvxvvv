@@ -1,0 +1,100 @@
+Forensics / context
+No detection, but the technique is being logged for forensic purposes and can be used to provide context.
+
+Basic
+Detection is in place using a basic signature to detect a specific part(s) of the technique's procedures.
+Therefore, only a minimal number of aspects of the technique are covered. Hence the number of false negatives is high and possible (but not necessarily) a high false positive rate. Detection is possibly not real time.
+2
+Fair
+The detection no longer only relies on a basic signature but makes use of a (correlation) rule to cover more aspects of the technique's procedures. Therefore, the number of false negatives is lower compared to
+"1/Poor" but may still be significant. False positives may still be present. Detection is possibly not real time.
+
+Good
+Effective in detecting malicious use of the technique by making use of more complex analytics. Many known aspects of the technique's procedures are covered.
+Bypassing detection by means of evasion and obfuscation could be possible. False negatives are present. False positives may still be present but are easy to recognize and can possibly be filtered out.
+Detection is real time.
+4
+Very good
+Very effective in detecting malicious use of the technique in real time by covering almost all known aspects of the technique's procedures. Bypassing detection by means of evasion and obfuscation methods is harder compared to level "3/good". The number of false negatives is low but could be present. False positives may still be present but are easy to recognize and can possibly be filtered out.
+
+Excellent
+Same level of detection as level "4/very good" with one exception: all known aspects of the technique's procedures are covered. Therefore, the number of false negatives is lower compared to level "4/very good".
+
+Score name
+Degree of detection
+Timing
+Coverage of the technique
+Opportunities to bypass detection
+False Negatives False Positives
+
+None
+None
+N/A
+None
+N/A
+N/A
+N/A
+Forensics / context
+None
+Possibly not real time
+None
+N/A
+N/A
+N/A
+Basic
+Signature based
+Possibly not real time
+Small number of aspects of the technique
+Bypassing (evasion/obfuscation) could be High possible
+
+Possibly high
+Fair
+Correlation) rule(s)
+Possibly not real time
+"1/Basic"
+More aspects of the technique compared to Bypassing (evasion/obfuscation) could be Less high possible
+
+May be present
+Good
+More complex analytics
+Real time
+Many known aspects of the technique
+Bypassing (evasion/obfuscation) could be Present possible
+
+May be present but are easy to recognize and can possibly be filtered out.
+Very good
+More complex analytics
+Real time
+Almost all known aspects of the technique
+Bypassing (evasion/obfuscation) is hard
+Low
+May be present but are easy to recognize and can possibly be filtered out.
+Excellent
+More complex analytics
+Real time
+All known aspects of the technique
+Bypassing (evasion/obfuscation) is hard
+Very low
+May be present but are easy to recognize and can possibly be filtered out.
+
+
+Visibility scores
+
+Score Score name
+Description
+0
+None
+No visibility at all.
+
+Minimal
+Sufficient data sources with sufficient quality available to be able to see one aspect of the technique's procedures.
+
+Medium
+Sufficient data sources with sufficient quality available to be able to see more aspects of the technique's procedures compared to "1/Minimal"
+3
+Good
+Sufficient data sources with sufficient quality available to be able to see almost all known aspects of the technique's procedures.
+4
+Excellent
+All data sources and required data quality necessary to be able to see all known aspects of the technique's
+procedures are available.
