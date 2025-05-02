@@ -23,3 +23,14 @@ index=cisnet-ws sourcetype="WinEventLog:Microsoft-Windows-PowerShell/Operational
 
 
 | rex field=messagecut "Get-ChildItem\s+[\"']?Cert:\\\\[^\\]+\\\\[^\\]+\\\\(?<CertSubject>[^\\"']+)"
+
+
+index=cisnet-ws sourcetype="WinEventLog:Microsoft-Windows-PowerShell/Operational" EventCode IN (4104, 4103)
+("export-certificate" OR "export-pfxcertificate" OR ("certutil" AND "-exportPFX"))
+| eval messagecut = replace(Message, "[\n\r]+", " ")
+| rex field=messagecut "Export-(?:Certificate|PfxCertificate)\\s+-FilePath\\s+(?<FilePath>\\S+)\\s+-Cert\\s+(?<CertVar>\\$\\S+)"
+| rex field=messagecut "certutil.*-exportPFX\\s+(?<CertCN>\\S+)"
+| rex field=messagecut "Get-ChildItem\\s+[\"']?Cert:\\\\[^\\\\]+\\\\[^\\\\]+\\\\(?<CertSubject>[^\"']+)"
+| eval _time=strftime(_time, "%Y/%m/%d %T")
+| table _time, host, User, title, FilePath, CertVar, CertSubject, CertCN, messagecut
+| sort _time
