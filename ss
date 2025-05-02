@@ -20,3 +20,6 @@ index=cisnet-ws sourcetype="WinEventLog:Microsoft-Windows-PowerShell/Operational
 | eval _time=strftime(_time, "%Y/%m/%d %T")
 | table _time, host, User, title, FilePath, CertVar, CertSubject, CertCN, messagecut
 | sort _time
+
+
+| rex field=messagecut "Get-ChildItem\s+[\"']?Cert:\\\\[^\\]+\\\\[^\\]+\\\\(?<CertSubject>[^\\"']+)"
