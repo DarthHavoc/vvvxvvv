@@ -9,3 +9,14 @@ Privilege Escalation: I’ve seen some attempts to escalate privileges, using su
 Security Bypass: There are a few logs indicating that system security features are being disabled, like SIP on macOS or SELinux on Linux. Adversaries may be trying to weaken system defenses to maintain access.
 
 Persistence Mechanisms: I’ve noticed some cron jobs being created and changes in launchd configurations on macOS. This could indicate someone trying to establish persistence on the systems.
+
+
+index=cisnet-ws sourcetype="WinEventLog:Microsoft-Windows-PowerShell/Operational" EventCode IN (4104, 4103)
+("export-certificate" OR "export-pfxcertificate" OR ("certutil" AND "-exportPFX"))
+| eval messagecut = replace(Message, "[\n\r]+", " ")
+| rex field=messagecut "Export-(?:Certificate|PfxCertificate)\s+-FilePath\s+(?<FilePath>\S+)\s+-Cert\s+(?<CertVar>\$\S+)"
+| rex field=messagecut "certutil.*-exportPFX\s+(?<CertCN>\S+)"
+| rex field=messagecut "Get-ChildItem\s+['\"]?Cert:\\\\[^\\]+\\\\[^\\]+\\\\(?<CertSubject>[^\"']+)"
+| eval _time=strftime(_time, "%Y/%m/%d %T")
+| table _time, host, User, title, FilePath, CertVar, CertSubject, CertCN, messagecut
+| sort _time
