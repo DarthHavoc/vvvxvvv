@@ -34,3 +34,17 @@ index=cisnet-ws sourcetype="WinEventLog:Microsoft-Windows-PowerShell/Operational
 | eval _time=strftime(_time, "%Y/%m/%d %T")
 | table _time, host, User, title, FilePath, CertVar, CertSubject, CertCN, messagecut
 | sort _time
+
+
+                                                            index=cisnet-ws sourcetype="WinEventLog:Microsoft-Windows-PowerShell/Operational" EventCode=4104
+("export-certificate" OR "export-pfxcertificate" OR "Get-ChildItem" OR "ThumbPrint")
+| eval messagecut = replace(Message, "[\n\r]+", " ")
+| rex field=messagecut "Creating Scriptblock text \(\d of \d\): (?<command_executed>.*?)ScriptBlock ID:"
+| rex field=messagecut "ThumbPrint\s+-eq\s+\"(?<CertThumbprint>[a-fA-F0-9]{40})\""
+| rex field=messagecut "\$cert\s*=\s*Get-ChildItem\s+-Path\s+Cert:\\\\[^\\\\]+\\\\[^\\\\]+\\\\(?<DirectThumbprint>[a-fA-F0-9]{40})"
+| rex field=messagecut "Subject\s+-like\s+\"\\*CN=(?<CertCN>[^\"]+)\\*\""
+| rex field=messagecut "\$cert\.*?\.Subject\s*=\s*\"(?<CertSubject>[^\"]+)\""
+| eval CertThumbprint=coalesce(CertThumbprint, DirectThumbprint)
+| table _time, host, User, CertThumbprint, CertSubject, CertCN, command_executed, messagecut
+| sort -_time
+
