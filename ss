@@ -112,4 +112,4 @@ ScriptBlockText IN ("*get-localgroup*", "*Get-LocalGroupMember*", "*Get-WmiObjec
 NOT (ScriptBlockText IN ("*ServiceNow*", "*Performance Monitor*", "*monitoring scripts*"))
 | table _time dest User ScriptBlockText
 
-
+| where match(CommandLine, "(?i)net\s+localgroup|get-localgroup|get-localgroupmember|wmic group get name|get-wmiobject.*win32_group")
