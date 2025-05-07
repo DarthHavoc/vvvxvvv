@@ -112,4 +112,34 @@ ScriptBlockText IN ("*get-localgroup*", "*Get-LocalGroupMember*", "*Get-WmiObjec
 NOT (ScriptBlockText IN ("*ServiceNow*", "*Performance Monitor*", "*monitoring scripts*"))
 | table _time dest User ScriptBlockText
 
-| where match(CommandLine, "(?i)net\s+localgroup|get-localgroup|get-localgroupmember|wmic group get name|get-wmiobject.*win32_group")
+
+
+
+_------
+(
+    search index=cisnet-ws sourcetype="WinEventLog:Microsoft-Windows-PowerShell/Operational" OR source="*Sysmon*"
+    (CommandLine IN ("*net localgroup*", "*get-localgroup*", "*Get-LocalGroupMember*", "*wmic group get name*", "*Get-WMIObject*Win32_Group*"))
+    NOT (User IN ("*-admin*", "*svc*", "*nessus*", "NT AUTHORITY\\SYSTEM"))
+    NOT (CommandLine IN ("*ServiceNow Users*", "*Performance Monitor Users*"))
+    NOT (ParentCommandLine IN ("*CyberArk*"))
+    | eval LoginUser=User
+) 
+UNION 
+(
+    search index=cisnet-ws sourcetype="WinEventLog:Microsoft-Windows-PowerShell/Operational" OR source="*Sysmon*"
+    (CommandLine IN ("*net localgroup*", "*get-localgroup*", "*Get-LocalGroupMember*", "*wmic group get name*", "*Get-WMIObject*Win32_Group*"))
+    User="NT AUTHORITY\\SYSTEM"
+    NOT (CommandLine IN ("*ServiceNow Users*", "*Performance Monitor Users*"))
+    NOT (ParentCommandLine IN ("*CyberArk*"))
+    | eval EventTime=_time
+    | join type=left host [
+        search index=cisnet-ws sourcetype=WinEventLog:Security EventCode=4624 
+        Logon_Type IN (2, 3, 7, 10, 11)
+        | eval LoginTime=_time
+        | stats latest(LoginTime) as LoginTime, latest(user) as LoginUser by host
+    ]
+)
+| eval LookupUser=lower(LoginUser)
+| lookup CISUsers.csv samaccountname AS LookupUser OUTPUT title, department, description, isVIP, mail
+| table _time, host, User, LoginUser, title, department, isVIP, CommandLine, ParentCommandLine, ParentImage, Image
+| sort -_time
